@@ -66,18 +66,6 @@
         
         let previousWords = JSON.parse(localStorage.getItem("previousWords")) || [];
 
-        function getUniqueWordForLanguage(language) {
-            const words = Object.keys(dictionary[language]);
-            const usedWords = previousWords.flatMap(entry => Object.keys(entry.words));
-            let availableWords = words.filter(word => !usedWords.includes(word));
-            
-            if (availableWords.length === 0) {
-                availableWords = words;
-            }
-            const selectedWord = availableWords[Math.floor(Math.random() * availableWords.length)];
-            return { word: selectedWord, translation: dictionary[language][selectedWord] };
-        }
-
         function getDailyWords() {
             const today = new Date().toISOString().split('T')[0];
             document.getElementById("date").textContent = `Data: ${today}`;
@@ -87,12 +75,14 @@
             
             let dailyWords = {};
             languages.forEach(lang => {
-                const { word, translation } = getUniqueWordForLanguage(lang);
-                dailyWords[lang] = word;
+                const words = Object.keys(dictionary[lang]);
+                const selectedWord = words[Math.floor(Math.random() * words.length)];
+                const translation = dictionary[lang][selectedWord];
+                dailyWords[lang] = { word: selectedWord, translation: translation };
                 
                 const wordBox = document.createElement("div");
                 wordBox.className = "word-box";
-                wordBox.innerHTML = `<p class="word">${word}</p><p class="translation">(${lang}) - ${translation}</p>`;
+                wordBox.innerHTML = `<p class="word">${selectedWord}</p><p class="translation">Tradução: ${translation}</p>`;
                 wordsContainer.appendChild(wordBox);
             });
             
