@@ -24,31 +24,72 @@
             font-size: 20px;
             color: #333;
         }
+        .date {
+            font-size: 18px;
+            color: #777;
+        }
+        .language-select {
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
     <div class="container">
+        <p class="date" id="date"></p>
         <p class="word" id="word">Carregando...</p>
         <p class="translation" id="translation"></p>
+        <div class="language-select">
+            <label for="language">Escolha o idioma:</label>
+            <select id="language" onchange="getRandomWord()">
+                <option value="portuguese">Português</option>
+                <option value="spanish">Espanhol</option>
+                <option value="japanese">Japonês</option>
+                <option value="french">Francês</option>
+                <option value="italian">Italiano</option>
+                <option value="latin">Latim</option>
+            </select>
+        </div>
+        <button onclick="viewPreviousWords()">Ver Anteriores</button>
+        <ul id="previousWords"></ul>
     </div>
     
     <script>
         const words = [
-            { english: "apple", portuguese: "maçã" },
-            { english: "sun", portuguese: "sol" },
-            { english: "computer", portuguese: "computador" },
-            { english: "ocean", portuguese: "oceano" },
-            { english: "mountain", portuguese: "montanha" }
+            { english: "apple", translations: { portuguese: "maçã", spanish: "manzana", japanese: "リンゴ", french: "pomme", italian: "mela", latin: "malum" } },
+            { english: "sun", translations: { portuguese: "sol", spanish: "sol", japanese: "太陽", french: "soleil", italian: "sole", latin: "sol" } },
+            { english: "computer", translations: { portuguese: "computador", spanish: "computadora", japanese: "コンピューター", french: "ordinateur", italian: "computer", latin: "computatorium" } },
+            { english: "ocean", translations: { portuguese: "oceano", spanish: "océano", japanese: "海", french: "océan", italian: "oceano", latin: "oceanus" } },
+            { english: "mountain", translations: { portuguese: "montanha", spanish: "montaña", japanese: "山", french: "montagne", italian: "montagna", latin: "mons" } }
         ];
+        
+        let previousWords = [];
 
         function getRandomWord() {
             const randomIndex = Math.floor(Math.random() * words.length);
             const word = words[randomIndex];
+            const selectedLanguage = document.getElementById("language").value;
+            
             document.getElementById("word").textContent = word.english;
-            document.getElementById("translation").textContent = `Tradução: ${word.portuguese}`;
+            document.getElementById("translation").textContent = `Tradução: ${word.translations[selectedLanguage]}`;
+            
+            const today = new Date().toLocaleDateString();
+            document.getElementById("date").textContent = `Data: ${today}`;
+            
+            previousWords.push(`${word.english} - ${word.translations[selectedLanguage]}`);
         }
-
+        
+        function viewPreviousWords() {
+            const list = document.getElementById("previousWords");
+            list.innerHTML = "";
+            previousWords.forEach(word => {
+                const listItem = document.createElement("li");
+                listItem.textContent = word;
+                list.appendChild(listItem);
+            });
+        }
+        
         window.onload = getRandomWord;
     </script>
 </body>
 </html>
+
