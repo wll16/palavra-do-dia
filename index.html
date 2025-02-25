@@ -16,79 +16,105 @@
             border-radius: 10px;
             display: inline-block;
         }
+        .word-box {
+            background: white;
+            padding: 10px;
+            margin: 10px;
+            border-radius: 5px;
+            display: inline-block;
+            width: 200px;
+        }
         .word {
             font-size: 24px;
             font-weight: bold;
         }
         .translation {
-            font-size: 20px;
+            font-size: 18px;
             color: #333;
         }
         .date {
             font-size: 18px;
             color: #777;
         }
-        .language-select {
-            margin-top: 10px;
+        .history {
+            margin-top: 20px;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <p class="date" id="date"></p>
-        <p class="word" id="word">Carregando...</p>
-        <p class="translation" id="translation"></p>
-        <div class="language-select">
-            <label for="language">Escolha o idioma:</label>
-            <select id="language" onchange="getRandomWord()">
-                <option value="portuguese">Português</option>
-                <option value="spanish">Espanhol</option>
-                <option value="japanese">Japonês</option>
-                <option value="french">Francês</option>
-                <option value="italian">Italiano</option>
-                <option value="latin">Latim</option>
-            </select>
-        </div>
+        <div id="words"></div>
         <button onclick="viewPreviousWords()">Ver Anteriores</button>
         <ul id="previousWords"></ul>
     </div>
     
     <script>
-        const words = [
-            { english: "apple", translations: { portuguese: "maçã", spanish: "manzana", japanese: "リンゴ", french: "pomme", italian: "mela", latin: "malum" } },
-            { english: "sun", translations: { portuguese: "sol", spanish: "sol", japanese: "太陽", french: "soleil", italian: "sole", latin: "sol" } },
-            { english: "computer", translations: { portuguese: "computador", spanish: "computadora", japanese: "コンピューター", french: "ordinateur", italian: "computer", latin: "computatorium" } },
-            { english: "ocean", translations: { portuguese: "oceano", spanish: "océano", japanese: "海", french: "océan", italian: "oceano", latin: "oceanus" } },
-            { english: "mountain", translations: { portuguese: "montanha", spanish: "montaña", japanese: "山", french: "montagne", italian: "montagna", latin: "mons" } }
-        ];
+        const languages = ["portuguese", "spanish", "japanese", "french", "italian", "latin", "english"];
+        
+        const dictionary = {
+            portuguese: ["maçã", "sol", "computador", "oceano", "montanha"],
+            spanish: ["manzana", "sol", "computadora", "océano", "montaña"],
+            japanese: ["リンゴ", "太陽", "コンピューター", "海", "山"],
+            french: ["pomme", "soleil", "ordinateur", "océan", "montagne"],
+            italian: ["mela", "sole", "computer", "oceano", "montagna"],
+            latin: ["malum", "sol", "computatorium", "oceanus", "mons"],
+            english: ["apple", "sun", "computer", "ocean", "mountain"]
+        };
         
         let previousWords = [];
 
-        function getRandomWord() {
-            const randomIndex = Math.floor(Math.random() * words.length);
-            const word = words[randomIndex];
-            const selectedLanguage = document.getElementById("language").value;
-            
-            document.getElementById("word").textContent = word.english;
-            document.getElementById("translation").textContent = `Tradução: ${word.translations[selectedLanguage]}`;
-            
-            const today = new Date().toLocaleDateString();
-            document.getElementById("date").textContent = `Data: ${today}`;
-            
-            previousWords.push(`${word.english} - ${word.translations[selectedLanguage]}`);
+        function getRandomWordForLanguage(language) {
+            const words = dictionary[language];
+            return words[Math.floor(Math.random() * words.length)];
         }
-        
+
+        function getDailyWords() {
+            const today = new Date();
+            const dateString = today.toISOString().split('T')[0];
+            document.getElementById("date").textContent = `Data: ${dateString}`;
+
+            const wordsContainer = document.getElementById("words");
+            wordsContainer.innerHTML = "";
+
+            let dailyWords = {};
+            languages.forEach(lang => {
+                const word = getRandomWordForLanguage(lang);
+                dailyWords[lang] = word;
+
+                const wordBox = document.createElement("div");
+                wordBox.className = "word-box";
+                wordBox.innerHTML = `<p class="word">${word}</p><p class="translation">(${lang})</p>`;
+                wordsContainer.appendChild(wordBox);
+            });
+
+            previousWords.push({ date: dateString, words: dailyWords });
+            localStorage.setItem("previousWords", JSON.stringify(previousWords));
+        }
+
         function viewPreviousWords() {
             const list = document.getElementById("previousWords");
             list.innerHTML = "";
-            previousWords.forEach(word => {
+            previousWords.forEach(entry => {
                 const listItem = document.createElement("li");
-                listItem.textContent = word;
+                listItem.textContent = `${entry.date}: ${JSON.stringify(entry.words)}`;
                 list.appendChild(listItem);
             });
         }
-        
-        window.onload = getRandomWord;
+
+        function checkDailyUpdate() {
+            const lastUpdate = localStorage.getItem("lastUpdate");
+            const today = new Date().toISOString().split('T')[0];
+            if (lastUpdate !== today) {
+                getDailyWords();
+                localStorage.setItem("lastUpdate", today);
+            } else {
+                previousWords = JSON.parse(localStorage.getItem("previousWords")) || [];
+                viewPreviousWords();
+            }
+        }
+
+        window.onload = checkDailyUpdate;
     </script>
 </body>
 </html>
