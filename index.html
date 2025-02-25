@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Palavra do Dia</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 50px;
+        }
+        .container {
+            background: #f4f4f4;
+            padding: 20px;
+            border-radius: 10px;
+            display: inline-block;
+        }
+        .word {
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .translation {
+            font-size: 20px;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <p class="word" id="word">Carregando...</p>
+        <p class="translation" id="translation"></p>
+    </div>
+    
+    <script>
+        const words = [
+            { english: "apple", portuguese: "maçã" },
+            { english: "sun", portuguese: "sol" },
+            { english: "computer", portuguese: "computador" },
+            { english: "ocean", portuguese: "oceano" },
+            { english: "mountain", portuguese: "montanha" }
+        ];
+
+        function getRandomWord() {
+            const randomIndex = Math.floor(Math.random() * words.length);
+            const word = words[randomIndex];
+            document.getElementById("word").textContent = word.english;
+            document.getElementById("translation").textContent = `Tradução: ${word.portuguese}`;
+        }
+
+        window.onload = getRandomWord;
+    </script>
+</body>
+</html>
