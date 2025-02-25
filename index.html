@@ -53,42 +53,47 @@
         const languages = ["portuguese", "spanish", "japanese", "french", "italian", "latin", "english"];
         
         const dictionary = {
-            portuguese: ["maçã", "sol", "computador", "oceano", "montanha"],
-            spanish: ["manzana", "sol", "computadora", "océano", "montaña"],
-            japanese: ["リンゴ", "太陽", "コンピューター", "海", "山"],
-            french: ["pomme", "soleil", "ordinateur", "océan", "montagne"],
-            italian: ["mela", "sole", "computer", "oceano", "montagna"],
-            latin: ["malum", "sol", "computatorium", "oceanus", "mons"],
-            english: ["apple", "sun", "computer", "ocean", "mountain"]
+            portuguese: ["maçã", "sol", "computador", "oceano", "montanha", "amizade", "caminho", "estrela", "viagem", "felicidade"],
+            spanish: ["manzana", "sol", "computadora", "océano", "montaña", "amistad", "camino", "estrella", "viaje", "felicidad"],
+            japanese: ["ringo", "taiyou", "konpyuutaa", "umi", "yama", "yuujou", "michi", "hoshi", "ryokou", "koufuku"],
+            french: ["pomme", "soleil", "ordinateur", "océan", "montagne", "amitié", "chemin", "étoile", "voyage", "bonheur"],
+            italian: ["mela", "sole", "computer", "oceano", "montagna", "amicizia", "sentiero", "stella", "viaggio", "felicità"],
+            latin: ["malum", "sol", "computatorium", "oceanus", "mons", "amicitia", "iter", "stella", "peregrinatio", "beatitudo"],
+            english: ["apple", "sun", "computer", "ocean", "mountain", "friendship", "path", "star", "journey", "happiness"]
         };
         
-        let previousWords = [];
+        let previousWords = JSON.parse(localStorage.getItem("previousWords")) || [];
 
-        function getRandomWordForLanguage(language) {
+        function getUniqueWordForLanguage(language) {
             const words = dictionary[language];
-            return words[Math.floor(Math.random() * words.length)];
+            const usedWords = previousWords.flatMap(entry => Object.values(entry.words));
+            let availableWords = words.filter(word => !usedWords.includes(word));
+            
+            if (availableWords.length === 0) {
+                availableWords = words;
+            }
+            return availableWords[Math.floor(Math.random() * availableWords.length)];
         }
 
         function getDailyWords() {
-            const today = new Date();
-            const dateString = today.toISOString().split('T')[0];
-            document.getElementById("date").textContent = `Data: ${dateString}`;
-
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById("date").textContent = `Data: ${today}`;
+            
             const wordsContainer = document.getElementById("words");
             wordsContainer.innerHTML = "";
-
+            
             let dailyWords = {};
             languages.forEach(lang => {
-                const word = getRandomWordForLanguage(lang);
+                const word = getUniqueWordForLanguage(lang);
                 dailyWords[lang] = word;
-
+                
                 const wordBox = document.createElement("div");
                 wordBox.className = "word-box";
                 wordBox.innerHTML = `<p class="word">${word}</p><p class="translation">(${lang})</p>`;
                 wordsContainer.appendChild(wordBox);
             });
-
-            previousWords.push({ date: dateString, words: dailyWords });
+            
+            previousWords.push({ date: today, words: dailyWords });
             localStorage.setItem("previousWords", JSON.stringify(previousWords));
         }
 
@@ -118,4 +123,3 @@
     </script>
 </body>
 </html>
-
