@@ -9,20 +9,22 @@
             font-family: Arial, sans-serif;
             text-align: center;
             margin: 50px;
+            background-color: black;
+            color: white;
         }
         .container {
-            background: #f4f4f4;
+            background: #222;
             padding: 20px;
             border-radius: 10px;
             display: inline-block;
         }
         .word-box {
-            background: white;
+            background: #333;
             padding: 10px;
             margin: 10px;
             border-radius: 5px;
             display: inline-block;
-            width: 200px;
+            width: 250px;
         }
         .word {
             font-size: 24px;
@@ -30,11 +32,11 @@
         }
         .translation {
             font-size: 18px;
-            color: #333;
+            color: #bbb;
         }
         .date {
             font-size: 18px;
-            color: #777;
+            color: #ccc;
         }
         .history {
             margin-top: 20px;
@@ -53,26 +55,27 @@
         const languages = ["portuguese", "spanish", "japanese", "french", "italian", "latin", "english"];
         
         const dictionary = {
-            portuguese: ["maçã", "sol", "computador", "oceano", "montanha", "amizade", "caminho", "estrela", "viagem", "felicidade"],
-            spanish: ["manzana", "sol", "computadora", "océano", "montaña", "amistad", "camino", "estrella", "viaje", "felicidad"],
-            japanese: ["ringo", "taiyou", "konpyuutaa", "umi", "yama", "yuujou", "michi", "hoshi", "ryokou", "koufuku"],
-            french: ["pomme", "soleil", "ordinateur", "océan", "montagne", "amitié", "chemin", "étoile", "voyage", "bonheur"],
-            italian: ["mela", "sole", "computer", "oceano", "montagna", "amicizia", "sentiero", "stella", "viaggio", "felicità"],
-            latin: ["malum", "sol", "computatorium", "oceanus", "mons", "amicitia", "iter", "stella", "peregrinatio", "beatitudo"],
-            english: ["apple", "sun", "computer", "ocean", "mountain", "friendship", "path", "star", "journey", "happiness"]
+            portuguese: {"maçã": "apple", "sol": "sun", "computador": "computer", "oceano": "ocean", "montanha": "mountain"},
+            spanish: {"manzana": "apple", "sol": "sun", "computadora": "computer", "océano": "ocean", "montaña": "mountain"},
+            japanese: {"ringo": "apple", "taiyou": "sun", "konpyuutaa": "computer", "umi": "ocean", "yama": "mountain"},
+            french: {"pomme": "apple", "soleil": "sun", "ordinateur": "computer", "océan": "ocean", "montagne": "mountain"},
+            italian: {"mela": "apple", "sole": "sun", "computer": "computer", "oceano": "ocean", "montagna": "mountain"},
+            latin: {"malum": "apple", "sol": "sun", "computatorium": "computer", "oceanus": "ocean", "mons": "mountain"},
+            english: {"apple": "maçã", "sun": "sol", "computer": "computador", "ocean": "oceano", "mountain": "montanha"}
         };
         
         let previousWords = JSON.parse(localStorage.getItem("previousWords")) || [];
 
         function getUniqueWordForLanguage(language) {
-            const words = dictionary[language];
-            const usedWords = previousWords.flatMap(entry => Object.values(entry.words));
+            const words = Object.keys(dictionary[language]);
+            const usedWords = previousWords.flatMap(entry => Object.keys(entry.words));
             let availableWords = words.filter(word => !usedWords.includes(word));
             
             if (availableWords.length === 0) {
                 availableWords = words;
             }
-            return availableWords[Math.floor(Math.random() * availableWords.length)];
+            const selectedWord = availableWords[Math.floor(Math.random() * availableWords.length)];
+            return { word: selectedWord, translation: dictionary[language][selectedWord] };
         }
 
         function getDailyWords() {
@@ -84,12 +87,12 @@
             
             let dailyWords = {};
             languages.forEach(lang => {
-                const word = getUniqueWordForLanguage(lang);
+                const { word, translation } = getUniqueWordForLanguage(lang);
                 dailyWords[lang] = word;
                 
                 const wordBox = document.createElement("div");
                 wordBox.className = "word-box";
-                wordBox.innerHTML = `<p class="word">${word}</p><p class="translation">(${lang})</p>`;
+                wordBox.innerHTML = `<p class="word">${word}</p><p class="translation">(${lang}) - ${translation}</p>`;
                 wordsContainer.appendChild(wordBox);
             });
             
